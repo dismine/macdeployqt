@@ -1428,8 +1428,8 @@ QSet<QString> codesignBundle(const QString &identity,
         additionalBinariesContainingRpaths.append(binaryPath);
     }
 
-    bool getAbsoltuePath = true;
-    QStringList foundPluginBinaries = findAppBundleFiles(appBundlePath + "/Contents/PlugIns/", getAbsoltuePath);
+    bool getAbsolutePath = true;
+    QStringList foundPluginBinaries = findAppBundleFiles(appBundlePath + "/Contents/PlugIns/", getAbsolutePath);
     foreach (const QString &binary, foundPluginBinaries) {
          pendingBinaries.push(binary);
          pendingBinariesSet.insert(binary);
@@ -1458,7 +1458,7 @@ QSet<QString> codesignBundle(const QString &identity,
         while (librariesIterator.hasNext()) {
             librariesIterator.next();
             QString librariesPath = librariesIterator.filePath();
-            QStringList bundleFiles = findAppBundleFiles(librariesPath, getAbsoltuePath);
+            QStringList bundleFiles = findAppBundleFiles(librariesPath, getAbsolutePath);
             foreach (const QString &binary, bundleFiles) {
                 pendingBinaries.push(binary);
                 pendingBinariesSet.insert(binary);
