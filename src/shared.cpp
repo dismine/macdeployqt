@@ -1534,7 +1534,10 @@ QSet<QString> codesignBundle(const QString &identity,
         }
     }
 
-    LogNormal() << "Finished codesigning " << appBundlePath << "with identity" << identity;
+    // Finally, sign the bundle itself
+    codesignFile(identity, appBundlePath);
+
+    LogNormal() << "Finished codesigning " << appBundlePath << " with identity " << identity;
 
     // Verify code signature
     QProcess codesign;
