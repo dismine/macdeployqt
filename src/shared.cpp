@@ -1514,6 +1514,24 @@ QSet<QString> codesignBundle(const QString &identity,
         codesignFile(identity, binary);
         signedBinaries.insert(binary);
         pendingBinariesSet.remove(binary);
+
+        // If the current binary contains a "*.framework" dir in the parent path, also sign it.
+        // Might not work every time, if there are still unsigned binaries, but the last call *should* succeed.
+        QDir binaryPath(binary);
+        while (binaryPath.cdUp())
+        {
+            auto currentPath = binaryPath.path();
+            if (!currentPath.startsWith(appBundleAbsolutePath))
+            {
+                break;
+            }
+
+            if (currentPath.endsWith(".framework"))
+            {
+                LogNormal() << "Signing enclosing framework bundle " << currentPath << " with identity " << identity;
+                codesignFile(identity, currentPath);
+            }
+        }
     }
 
     LogNormal() << "Finished codesigning " << appBundlePath << "with identity" << identity;
