@@ -883,15 +883,15 @@ void deployRPaths(const QString &bundlePath, const QSet<QString> &rpaths, const 
             args << "-delete_rpath" << rpath;
         }
     }
-    if (!args.length()) {
-        return;
-    }
     if (!rpathToFrameworksFound) {
         if (!useLoaderPath) {
             args << "-add_rpath" << "@executable_path/../Frameworks";
         } else {
             args << "-add_rpath" << loaderPathToFrameworks;
         }
+    }
+    if (!args.length()) {
+        return;
     }
     LogDebug() << "Using install_name_tool:";
     LogDebug() << " change rpaths in" << binaryPath;
