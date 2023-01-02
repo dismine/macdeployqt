@@ -878,7 +878,8 @@ void deployRPaths(const QString &bundlePath, const QSet<QString> &rpaths, const 
             rpathToFrameworksFound = true;
             continue;
         }
-        if (rpaths.contains(resolveDyldPrefix(rpath, binaryPath, binaryPath))) {
+        const QString dyldPrefix = resolveDyldPrefix(rpath, binaryPath, binaryPath);
+        if (rpaths.contains(dyldPrefix) || !QDir(dyldPrefix).exists()) {
             args << "-delete_rpath" << rpath;
         }
     }
