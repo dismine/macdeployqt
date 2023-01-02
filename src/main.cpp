@@ -226,7 +226,7 @@ int main(int argc, char **argv)
     }
 
     if (!qmlDirs.isEmpty()) {
-        bool ok = deployQmlImports(appBundlePath, deploymentInfo, qmlDirs, qmlImportPaths);
+        bool ok = deployQmlImports(appBundlePath, deploymentInfo, qmlDirs, qmlImportPaths, useDebugLibs);
         if (!ok && qmldirArgumentUsed)
             return 1; // exit if the user explicitly asked for qml import deployment
 

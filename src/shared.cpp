@@ -667,7 +667,7 @@ bool recursiveCopy(const QString &sourcePath, const QString &destinationPath)
     return true;
 }
 
-void recursiveCopyAndDeploy(const QString &appBundlePath, const QSet<QString> &rpaths, const QString &sourcePath, const QString &destinationPath)
+void recursiveCopyAndDeploy(const QString &appBundlePath, const QSet<QString> &rpaths, const QString &sourcePath, const QString &destinationPath, bool useDebugLibs)
 {
     QDir().mkpath(destinationPath);
 
@@ -678,13 +678,13 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QSet<QString> &r
     foreach (QString file, files) {
         const QString fileSourcePath = sourcePath + QLatin1Char('/') + file;
 
-        if (file.endsWith("_debug.dylib")) {
-            continue; // Skip debug versions
+        if ((!useDebugLibs && file.endsWith("_debug.dylib")) || (useDebugLibs && !file.endsWith("_debug.dylib"))) {
+            continue; // Skip debug /release versions depending on what variant we deploy.
         } else if (!isDwarfPath && file.endsWith(QStringLiteral(".dylib"))) {
             // App store code signing rules forbids code binaries in Contents/Resources/,
             // which poses a problem for deploying mixed .qml/.dylib Qt Quick imports.
             // Solve this by placing the dylibs in Contents/PlugIns/quick, and then
-            // creting a symlink to there from the Qt Quick import in Contents/Resources/.
+            // creating a symlink to there from the Qt Quick import in Contents/Resources/.
             //
             // Example:
             // MyApp.app/Contents/Resources/qml/QtQuick/Controls/libqtquickcontrolsplugin.dylib ->
@@ -722,7 +722,7 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QSet<QString> &r
 
     QStringList subdirs = QDir(sourcePath).entryList(QStringList() << QStringLiteral("*"), QDir::Dirs | QDir::NoDotAndDotDot);
     foreach (QString dir, subdirs) {
-        recursiveCopyAndDeploy(appBundlePath, rpaths, sourcePath + QLatin1Char('/') + dir, destinationPath + QLatin1Char('/') + dir);
+        recursiveCopyAndDeploy(appBundlePath, rpaths, sourcePath + QLatin1Char('/') + dir, destinationPath + QLatin1Char('/') + dir, useDebugLibs);
     }
 }
 
@@ -1233,7 +1233,7 @@ void deployPlugins(const QString &appBundlePath, DeploymentInfo deploymentInfo, 
     deployPlugins(applicationBundle, deploymentInfo.pluginPath, pluginDestinationPath, deploymentInfo, useDebugLibs);
 }
 
-void deployQmlImport(const QString &appBundlePath, const QSet<QString> &rpaths, const QString &importSourcePath, const QString &importName)
+void deployQmlImport(const QString &appBundlePath, const QSet<QString> &rpaths, const QString &importSourcePath, const QString &importName, bool useDebugLibs)
 {
     QString importDestinationPath = appBundlePath + "/Contents/Resources/qml/" + importName;
 
@@ -1242,7 +1242,7 @@ void deployQmlImport(const QString &appBundlePath, const QSet<QString> &rpaths, 
     if (QDir().exists(importDestinationPath))
         return;
 
-    recursiveCopyAndDeploy(appBundlePath, rpaths, importSourcePath, importDestinationPath);
+    recursiveCopyAndDeploy(appBundlePath, rpaths, importSourcePath, importDestinationPath, useDebugLibs);
 }
 
 static bool importLessThan(const QVariant &v1, const QVariant &v2)
@@ -1255,7 +1255,7 @@ static bool importLessThan(const QVariant &v1, const QVariant &v2)
 }
 
 // Scan qml files in qmldirs for import statements, deploy used imports from QmlImportsPath to Contents/Resources/qml.
-bool deployQmlImports(const QString &appBundlePath, DeploymentInfo deploymentInfo, QStringList &qmlDirs, QStringList &qmlImportPaths)
+bool deployQmlImports(const QString &appBundlePath, DeploymentInfo deploymentInfo, QStringList &qmlDirs, QStringList &qmlImportPaths, bool useDebugLibs)
 {
     LogNormal() << "";
     LogNormal() << "Deploying QML imports ";
@@ -1357,7 +1357,7 @@ bool deployQmlImports(const QString &appBundlePath, DeploymentInfo deploymentInf
         if (version.startsWith(QLatin1Char('.')))
             name.append(version);
 
-        deployQmlImport(appBundlePath, deploymentInfo.rpathsUsed, path, name);
+        deployQmlImport(appBundlePath, deploymentInfo.rpathsUsed, path, name, useDebugLibs);
         LogNormal() << "";
     }
     return true;
