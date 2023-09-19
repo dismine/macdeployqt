@@ -1,30 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the tools applications of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:GPL-EXCEPT$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibraryInfo>
@@ -82,7 +57,7 @@ int main(int argc, char **argv)
 
     appBundlePath = QDir::cleanPath(appBundlePath);
 
-    if (QDir().exists(appBundlePath) == false) {
+    if (!QDir(appBundlePath).exists()) {
         qDebug() << "Error: Could not find app bundle" << appBundlePath;
         return 1;
     }
@@ -191,7 +166,7 @@ int main(int argc, char **argv)
             LogDebug() << "Argument found:" << argument;
             appstoreCompliant = true;
 
-        // Undocumented option, may not work as intented
+            // Undocumented option, may not work as intended
         } else if (argument == QByteArray("-deploy-framework")) {
             LogDebug() << "Argument found:" << argument;
             deployFramework = true;
@@ -207,7 +182,7 @@ int main(int argc, char **argv)
             LogError() << "Unknown argument" << argument << "\n";
             return 1;
         }
-     }
+    }
 
     DeploymentInfo deploymentInfo = deployQtFrameworks(appBundlePath, additionalExecutables, useDebugLibs);
 
@@ -217,7 +192,7 @@ int main(int argc, char **argv)
     if (deployFramework && deploymentInfo.isFramework)
         fixupFramework(appBundlePath);
 
-    // Convenience: Look for .qml files in the current directoty if no -qmldir specified.
+    // Convenience: Look for .qml files in the current directory if no -qmldir specified.
     if (qmlDirs.isEmpty()) {
         QDir dir;
         if (!dir.entryList(QStringList() << QStringLiteral("*.qml")).isEmpty()) {
