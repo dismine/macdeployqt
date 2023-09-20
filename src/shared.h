@@ -30,6 +30,7 @@ public:
     QString rpathUsed;
     QString version;
     QString installName;
+    QString dependencyInstallName;
     QString deployedInstallName;
     QString sourceFilePath;
     QString frameworkDestinationDirectory;
@@ -90,13 +91,13 @@ public:
 inline QDebug operator<<(QDebug debug, const ApplicationBundleInfo &info);
 
 OtoolInfo findDependencyInfo(const QString &binaryPath);
-FrameworkInfo parseOtoolLibraryLine(const QString &line, const QString &appBundlePath, const QList<QString> &rpaths, bool useDebugLibs);
+FrameworkInfo parseOtoolLibraryLine(const QString &line, const QString &loaderPath, const QString &appBundlePath, const QList<QString> &rpaths, bool useDebugLibs);
 QString findAppBinary(const QString &appBundlePath);
-QList<FrameworkInfo> getQtFrameworks(const QString &path, const QString &appBundlePath, const QList<QString> &rpaths, bool useDebugLibs);
+QList<FrameworkInfo> getQtFrameworks(const QString &path, const QString &loaderPath, const QString &appBundlePath, const QList<QString> &rpaths, bool useDebugLibs);
 QList<FrameworkInfo> getQtFrameworks(const QStringList &otoolLines, const QString &appBundlePath, const QList<QString> &rpaths, bool useDebugLibs);
 QString copyFramework(const FrameworkInfo &framework, const QString path);
 DeploymentInfo deployQtFrameworks(const QString &appBundlePath, const QStringList &additionalExecutables, bool useDebugLibs);
-DeploymentInfo deployQtFrameworks(QList<FrameworkInfo> frameworks,const QString &bundlePath, const QStringList &binaryPaths, bool useDebugLibs, bool useLoaderPath);
+DeploymentInfo deployQtFrameworks(QList<FrameworkInfo> frameworks, const QString &bundlePath, const QStringList &binaryPaths, bool useDebugLibs, bool useLoaderPath);
 void createQtConf(const QString &appBundlePath);
 void deployPlugins(const QString &appBundlePath, DeploymentInfo deploymentInfo, bool useDebugLibs);
 bool deployQmlImports(const QString &appBundlePath, DeploymentInfo deploymentInfo, QStringList &qmlDirs, QStringList &qmlImportPaths, bool useDebugLibs);
