@@ -75,6 +75,19 @@ inline QDebug operator<<(QDebug debug, const ApplicationBundleInfo &info)
     return debug;
 }
 
+int countNonOverlappingOccurrences(const QString &str, const QString &substr)
+{
+    int count = 0;
+    int index = str.indexOf(substr);
+
+    while(index != -1) {
+        count ++;
+        index = str.indexOf(substr, index + substr.length());
+    }
+
+    return count;
+}
+
 bool copyFilePrintStatus(const QString &from, const QString &to)
 {
     if (QFile::exists(to)) {
@@ -242,6 +255,12 @@ FrameworkInfo parseOtoolLibraryLine(const QString &line, const QString &loaderPa
         bool foundInsideBundle = false;
         for (const QString &rpath : std::as_const(rpaths)) {
             QString path = QDir::cleanPath(rpath + "/" + rpathRelativePath);
+
+            // Skip invalid path
+            if (countNonOverlappingOccurrences(path, ".framework/Versions/") >= 2) {
+                continue;
+            }
+
             // Skip paths already inside the bundle.
             if (!appBundlePath.isEmpty()) {
                 QString cleanPath = QDir::isAbsolutePath(appBundlePath)
