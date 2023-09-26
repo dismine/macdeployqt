@@ -33,6 +33,7 @@ int main(int argc, char **argv)
         qDebug() << "   -sign-for-notarization=<ident>: Activate the necessary options for notarization (requires internet connection)";
         qDebug() << "   -appstore-compliant           : Skip deployment of components that use private API";
         qDebug() << "   -libpath=<path>               : Add the given path to the library search path";
+        qDebug() << "   -pluginspath                  : Set the plugins search directory. Overrides default path";
         qDebug() << "   -fs=<filesystem>              : Set the filesystem used for the .dmg disk image (defaults to HFS+)";
         qDebug() << "";
         qDebug() << "macdeployqt takes an application bundle as input and makes it";
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
     extern bool runStripEnabled;
     extern bool alwaysOwerwriteEnabled;
     extern QStringList librarySearchPath;
+    QString pluginsSearchPath;
     QStringList additionalExecutables;
     bool qmldirArgumentUsed = false;
     QStringList qmlDirs;
@@ -133,7 +135,15 @@ int main(int argc, char **argv)
                 LogError() << "Missing library search path";
             else
                 librarySearchPath << argument.mid(index+1);
-        } else if (argument == QByteArray("-always-overwrite")) {
+        } else if (argument.startsWith(QByteArray("-pluginspath"))) {
+            LogDebug() << "Argument found:" << argument;
+            int index = argument.indexOf("=");
+            if (index < 0 || index >= argument.size()) {
+                LogError() << "Missing plugins search directory";
+            } else {
+                pluginsSearchPath = argument.mid(index+1);
+            }
+        }else if (argument == QByteArray("-always-overwrite")) {
             LogDebug() << "Argument found:" << argument;
             alwaysOwerwriteEnabled = true;
         } else if (argument.startsWith(QByteArray("-codesign"))) {
@@ -216,7 +226,8 @@ int main(int argc, char **argv)
     // Handle plugins
     if (plugins) {
         // Set the plugins search directory
-        deploymentInfo.pluginPath = QLibraryInfo::path(QLibraryInfo::PluginsPath);
+        deploymentInfo.pluginPath = pluginsSearchPath.isEmpty() ? QLibraryInfo::path(QLibraryInfo::PluginsPath)
+                                                                : pluginsSearchPath;
 
         // Sanity checks
         if (deploymentInfo.pluginPath.isEmpty()) {
