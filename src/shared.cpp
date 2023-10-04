@@ -475,7 +475,7 @@ QStringList findAppLibraries(const QString &appBundlePath)
 
     {
         // dylibs
-        QDirIterator iter(appBundlePath, QStringList() << QString::fromLatin1("*.dylib"),
+        QDirIterator iter(appBundlePath, QStringList() << QString::fromLatin1("*.dylib") << QString::fromLatin1("*.so"),
                           QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
         while (iter.hasNext()) {
             iter.next();
