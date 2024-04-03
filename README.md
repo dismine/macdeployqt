@@ -20,17 +20,17 @@ bundle needs to be properly signed again after running macdeployqt.
 
 ## Compatibility with brew
 
-Original macdeployqt utility is not compatible with brew. Brew packages Qt library differently. Install name path for 
-the library absolute instead of relative with `@rpath` which macdeployqt expects. To avoid this issue we propose to add 
+Original macdeployqt utility is not compatible with brew. Brew packages Qt library differently. Install name path for
+the library absolute instead of relative with `@rpath` which macdeployqt expects. To avoid this issue we propose to add
 a symbolic link to place where macdeployqt expects Qt library from brew.
 
 ```shell
 ln -s $(brew --prefix qt)/lib ./lib
 ```
 
-While solution with symbolic link helps to find all dependecies it doesn't fix codesigning issue. For some reasons 
-macdeployqt doesn't follow `@loader_path` to find binary dependecies. Which is critical because by default it adds 
-`@loader_path` to all install names. 
+While solution with symbolic link helps to find all dependecies it doesn't fix codesigning issue. For some reasons
+macdeployqt doesn't follow `@loader_path` to find binary dependecies. Which is critical because by default it adds
+`@loader_path` to all install names.
 
 ## Building macdeployqt
 
@@ -58,6 +58,8 @@ cmake -GNinja \
     -DCMAKE_BUILD_TYPE=Release
 cmake --build /path/to/build-dir --target install
 ```
+
+If you want to sign with certificate pass `-DCODE_SIGN_IDENTITY="Developer ID Application: YOUR NAME \(TEAM_ID\)"`.
 
 After running the above commands, you should have a `macdeployqt` executable in the install dir. Copy it to your Qt
 installation's `bin` dir and replace the original executable located there.
