@@ -43,7 +43,7 @@ if (NOT ${CODE_SIGN_IDENTITY} STREQUAL "-")
 else()
     # Ad-hoc signing
     add_custom_command(TARGET macdeployqt POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Signing (ad-hoc) macdeployqt"
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing \\\(ad-hoc\\\) macdeployqt"
         COMMAND codesign --force --sign ${CODE_SIGN_IDENTITY} $<TARGET_FILE:macdeployqt>
     )
 endif()
