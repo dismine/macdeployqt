@@ -1,4 +1,4 @@
-Fixed macdeployqt tool for Qt 6.6
+Fixed macdeployqt tool for Qt 6.7
 =================================
 
 Ths repository contains a fork of the macdeployqt utility, which can be used to copy required Qt libraries and plug-ins
