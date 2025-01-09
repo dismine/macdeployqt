@@ -18,6 +18,12 @@ add_executable(macdeployqt
     src/shared.h
     )
 
+target_compile_definitions(macdeployqt
+    PRIVATE
+    QT_NO_FOREACH
+    QT_USE_NODISCARD_FILE_OPEN
+    )
+
 target_link_libraries(macdeployqt
     PRIVATE
     Qt6::Core
