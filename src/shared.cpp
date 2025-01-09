@@ -728,6 +728,9 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QList<QString> &
             || (useDebugLibs && !file.endsWith("_debug.dylib")))
             continue; // Skip debug/release versions depending on what variant we deploy.
 
+        if (file.endsWith(".qrc"))
+            continue;
+
         const QString fileSourcePath = sourcePath + u'/' + file;
 
         if (file.endsWith(QStringLiteral(".dylib"))) {
@@ -775,7 +778,11 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QList<QString> &
         if (dir.endsWith(".dSYM"))
             continue;
 
-        recursiveCopyAndDeploy(appBundlePath, rpaths, sourcePath + u'/' + dir, destinationPath + u'/' + dir, useDebugLibs);
+        recursiveCopyAndDeploy(appBundlePath,
+                               rpaths,
+                               sourcePath + u'/' + dir,
+                               destinationPath + u'/' + dir,
+                               useDebugLibs);
     }
 }
 
