@@ -719,17 +719,18 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QList<QString> &
     QDir().mkpath(destinationPath);
 
     LogNormal() << "copy:" << sourcePath << destinationPath;
-    const bool isDwarfPath = sourcePath.endsWith("DWARF");
 
     const QDir sourceDir(sourcePath);
 
     const QStringList files = sourceDir.entryList(QStringList() << QStringLiteral("*"), QDir::Files | QDir::NoDotAndDotDot);
     for (const QString &file : files) {
+        if ((!useDebugLibs && file.endsWith("_debug.dylib"))
+            || (useDebugLibs && !file.endsWith("_debug.dylib")))
+            continue; // Skip debug/release versions depending on what variant we deploy.
+
         const QString fileSourcePath = sourcePath + u'/' + file;
 
-        if ((!useDebugLibs && file.endsWith("_debug.dylib")) || (useDebugLibs && !file.endsWith("_debug.dylib"))) {
-            continue; // Skip debug/release versions depending on what variant we deploy.
-        } else if (!isDwarfPath && file.endsWith(QStringLiteral(".dylib"))) {
+        if (file.endsWith(QStringLiteral(".dylib"))) {
             // App store code signing rules forbids code binaries in Contents/Resources/,
             // which poses a problem for deploying mixed .qml/.dylib Qt Quick imports.
             // Solve this by placing the dylibs in Contents/PlugIns/quick, and then
@@ -771,6 +772,9 @@ void recursiveCopyAndDeploy(const QString &appBundlePath, const QList<QString> &
 
     const QStringList subdirs = sourceDir.entryList(QStringList() << QStringLiteral("*"), QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QString &dir : subdirs) {
+        if (dir.endsWith(".dSYM"))
+            continue;
+
         recursiveCopyAndDeploy(appBundlePath, rpaths, sourcePath + u'/' + dir, destinationPath + u'/' + dir, useDebugLibs);
     }
 }
