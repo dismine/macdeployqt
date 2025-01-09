@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include <QCoreApplication>
 #include <QDir>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#include <QDirListing>
+#endif
 #include <QLibraryInfo>
 
 #include "shared.h"
@@ -218,10 +221,18 @@ int main(int argc, char **argv)
 
     // Convenience: Look for .qml files in the current directory if no -qmldir specified.
     if (qmlDirs.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        using namespace Qt::StringLiterals;
+        using F = QDirListing::IteratorFlag;
+        QDirListing lister(QDir::currentPath(), QStringList(u"*.qml"_s), F::FilesOnly);
+        if (lister.cbegin() != lister.cend())
+            qmlDirs += QStringLiteral(".");
+#else
         QDir dir;
         if (!dir.entryList(QStringList() << QStringLiteral("*.qml")).isEmpty()) {
             qmlDirs += QStringLiteral(".");
         }
+#endif
     }
 
     if (!qmlDirs.isEmpty()) {
