@@ -1,4 +1,4 @@
-Fixed macdeployqt tool for Qt 6.7
+Fixed macdeployqt tool for Qt 6.8
 =================================
 
 Ths repository contains a fork of the macdeployqt utility, which can be used to copy required Qt libraries and plug-ins
@@ -39,9 +39,9 @@ way that it can replace the original tool in a Qt build.
 
 ### Requirements
 
-The code was taken from the Qt 6.6 version, so it is recommended to build it against this version. It should run
+The code was taken from the Qt 6.8 version, so it is recommended to build it against this version. It should run
 with future versions as well though. Other than that, the build requirements are basically the same as for building Qt
-6.6 on macOS.
+6.8 on macOS.
 
 It is recommended to use the Ninja build generator, as this is Qt's preferred build tool. It should build with the Unix
 Makefiles or Xcode generators as well.
