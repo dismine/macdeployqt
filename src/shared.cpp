@@ -1,25 +1,26 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+#include "shared.h"
 #include <QCoreApplication>
-#include <QString>
-#include <QStringList>
 #include <QDebug>
-#include <iostream>
-#include <utility>
-#include <QProcess>
 #include <QDir>
-#include <QSet>
-#include <QVariant>
-#include <QVariantMap>
-#include <QStack>
 #include <QDirIterator>
-#include <QLibraryInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QJsonValue>
+#include <QLibraryInfo>
+#include <QProcess>
 #include <QRegularExpression>
-#include "shared.h"
+#include <QSaveFile>
+#include <QSet>
+#include <QStack>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
+#include <QVariantMap>
+#include <iostream>
+#include <utility>
 
 #ifdef Q_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -148,19 +149,22 @@ void patch_debugInInfoPlist(const QString &infoPlistPath)
 {
     // Older versions of qmake may have the "_debug" binary as
     // the value for CFBundleExecutable. Remove it.
-    QFile infoPlist(infoPlistPath);
-    if (infoPlist.open(QIODevice::ReadOnly)) {
+    if (QFile infoPlist(infoPlistPath); infoPlist.open(QIODevice::ReadOnly)) {
         QByteArray contents = infoPlist.readAll();
         infoPlist.close();
-        if (infoPlist.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QSaveFile writableInfoPlist(infoPlistPath);
+        bool success = writableInfoPlist.open(QIODevice::WriteOnly | QIODevice::Truncate);
+        if (success) {
             contents.replace("_debug",
                              ""); // surely there are no legit uses of "_debug" in an Info.plist
-            infoPlist.write(contents);
-        } else {
-            LogError() << "failed to write Info.plist file" << infoPlistPath;
+            writableInfoPlist.write(contents);
+            success = writableInfoPlist.commit();
+        }
+        if (!success) {
+            LogError() << "Failed to write Info.plist file" << infoPlistPath;
         }
     } else {
-        LogError() << "failed to read Info.plist file" << infoPlistPath;
+        LogError() << "Failed to read Info.plist file" << infoPlistPath;
     }
 }
 
@@ -1313,8 +1317,7 @@ void createQtConf(const QString &appBundlePath)
 
     QDir().mkpath(filePath);
 
-    QFile qtconf(fileName);
-    if (qtconf.exists() && !alwaysOwerwriteEnabled) {
+    if (QFile::exists(fileName) && !alwaysOwerwriteEnabled) {
         LogWarning();
         LogWarning() << fileName << "already exists, will not overwrite.";
         LogWarning() << "To make sure the plugins are loaded from the correct location,";
@@ -1324,7 +1327,8 @@ void createQtConf(const QString &appBundlePath)
         return;
     }
 
-    if (qtconf.open(QIODevice::WriteOnly) && qtconf.write(contents) != -1) {
+    if (QSaveFile qtconf(fileName);
+        qtconf.open(QIODevice::WriteOnly) && qtconf.write(contents) != -1 && qtconf.commit()) {
         LogNormal() << "Created configuration file:" << fileName;
         LogNormal() << "This file sets the plugin search path to" << appBundlePath + "/Contents/PlugIns";
     }
